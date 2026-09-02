@@ -1,12 +1,12 @@
 {
   "players": [
-    { "name": "Player 1", "teams": ["", "", "", ""] },
-    { "name": "Player 2", "teams": ["", "", "", ""] },
-    { "name": "Player 3", "teams": ["", "", "", ""] },
-    { "name": "Player 4", "teams": ["", "", "", ""] },
-    { "name": "Player 5", "teams": ["", "", "", ""] },
-    { "name": "Player 6", "teams": ["", "", "", ""] },
-    { "name": "Player 7", "teams": ["", "", "", ""] },
-    { "name": "Player 8", "teams": ["", "", "", ""] }
+    { "name": "Bobby", "teams": ["", "", "", ""] },
+    { "name": "Oliver", "teams": ["", "", "", ""] },
+    { "name": "Ralph", "teams": ["", "", "", ""] },
+    { "name": "Kian", "teams": ["", "", "", ""] },
+    { "name": "Mark", "teams": ["", "", "", ""] },
+    { "name": "Tiger", "teams": ["", "", "", ""] },
+    { "name": "Nalin", "teams": ["", "", "", ""] },
+    { "name": "Julien", "teams": ["", "", "", ""] }
   ]
 }
