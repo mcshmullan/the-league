@@ -7,7 +7,7 @@
 <style>
   :root{
     --field:#0f2818;
-    --field-line:#FAF9F6;
+    --field-line:#1c4229;
     --chalk:#f2f0e6;
     --chalk-dim:#a9b3ab;
     --gold:#d4a72c;
@@ -39,8 +39,9 @@
   position:absolute;
   top:20px;
   left:20px;
-  max-height:20px;
+  max-height:40px;
   object-fit:contain;
+  border-radius:50%;
 }
   h1{
     font-size:clamp(28px,6vw,44px);
@@ -71,6 +72,17 @@
     padding:10px 20px;
     font-size:14px;
   }
+  .player-logos{
+  display:inline-flex;
+  gap:6px;
+  margin-left:10px;
+  vertical-align:middle;
+}
+.mini-logo{
+  width:24px;
+  height:24px;
+  object-fit:contain;
+}
   .btn-gold:hover{background:#e0b53a;}
   .btn-ghost{
     background:transparent;
@@ -525,7 +537,12 @@ function renderLeaderboard(cfg){
         <div class="row ${idx===0 && r.pts>0 ? 'lead':''}">
           <div class="rank">${idx+1}</div>
           <div>
-            <div class="player-name">${r.name}</div>
+            <div class="player-name">
+              ${r.name}
+              <span class="player-logos">
+              ${r.teams.filter(Boolean).map(abbr => `<img class="mini-logo" src="https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png" alt="${abbr}">`).join('')}
+              </span>
+            </div>
             <div class="teams">
               ${r.teams.filter(Boolean).map(abbr => {
                 const b = teamBreakdown(abbr);
