@@ -1,12 +1,12 @@
 {
   "players": [
-    { "name": "Bobby", "teams": ["", "", "", ""] },
-    { "name": "Oliver", "teams": ["", "", "", ""] },
+    { "name": "Bobby", "teams": ["WAS", "DEN", "SEA", "ATL"] },
+    { "name": "Oliver", "teams": ["DET", "TB", "ARI", "DAL"] },
     { "name": "Ralph", "teams": ["", "", "", ""] },
-    { "name": "Kian", "teams": ["", "", "", ""] },
-    { "name": "Mark", "teams": ["", "", "", ""] },
-    { "name": "Tiger", "teams": ["", "", "", ""] },
-    { "name": "Nalin", "teams": ["", "", "", ""] },
-    { "name": "Julien", "teams": ["", "", "", ""] }
+    { "name": "Kian", "teams": ["KC", "LAR", "CAR", "JAX"] },
+    { "name": "Mark", "teams": ["GB", "SF", "NE", "TEN"] },
+    { "name": "Tiger", "teams": ["BAL", "CIN", "LAC", "NYJ"] },
+    { "name": "Nalin", "teams": ["PHI", "MIN", "LV", "CHI"] },
+    { "name": "Julien", "teams": ["BUF", "HOU", "IND", "PIT"] }
   ]
 }
