@@ -7,7 +7,7 @@
 <style>
   :root{
     --field:#0f2818;
-    --field-line:#1c4229;
+    --field-line:#FAF9F6;
     --chalk:#f2f0e6;
     --chalk-dim:#a9b3ab;
     --gold:#d4a72c;
@@ -33,7 +33,15 @@
     margin-bottom:20px;
     border-bottom:3px solid var(--gold);
     padding-bottom:18px;
+    position:relative;
   }
+  .banner{
+  position:absolute;
+  top:20px;
+  left:20px;
+  max-height:70px;
+  object-fit:contain;
+}
   h1{
     font-size:clamp(28px,6vw,44px);
     letter-spacing:1px;
