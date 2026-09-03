@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>League Standings</title>
+<style>
+  :root{
+    --field:#0f2818;
+    --field-line:#1c4229;
+    --chalk:#f2f0e6;
+    --chalk-dim:#a9b3ab;
+    --gold:#d4a72c;
+    --gold-dim:#8a7223;
+    --panel:#153420;
+    --panel-line:#2a5236;
+    --danger:#c0503f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      repeating-linear-gradient(90deg, var(--field-line) 0 2px, transparent 2px 80px),
+      var(--field);
+    color:var(--chalk);
+    font-family:'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+    min-height:100vh;
+    padding:32px 16px 80px;
+  }
+  .wrap{max-width:780px;margin:0 auto;}
+  header{
+    text-align:center;
+    margin-bottom:20px;
+    border-bottom:3px solid var(--gold);
+    padding-bottom:18px;
+  }
+  h1{
+    font-size:clamp(28px,6vw,44px);
+    letter-spacing:1px;
+    margin:0 0 6px;
+    font-weight:800;
+    text-transform:uppercase;
+  }
+  .sub{color:var(--chalk-dim);font-size:13px;letter-spacing:.3px;}
+  .status{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .status.error{color:#e8a99a;}
+  button{
+    font-family:inherit;
+    cursor:pointer;
+    border:none;
+    border-radius:6px;
+    font-weight:700;
+    letter-spacing:.3px;
+  }
+  .btn-gold{
+    background:var(--gold);
+    color:#1a1204;
+    padding:10px 20px;
+    font-size:14px;
+  }
+  .btn-gold:hover{background:#e0b53a;}
+  .btn-ghost{
+    background:transparent;
+    color:var(--chalk-dim);
+    border:1px solid var(--panel-line);
+    padding:8px 16px;
+    font-size:13px;
+  }
+  .btn-ghost:hover{color:var(--chalk);border-color:var(--gold-dim);}
+  .toolbar{display:flex;justify-content:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+
+  details.rules{
+    max-width:520px;
+    margin:0 auto 24px;
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:8px;
+    padding:10px 16px;
+    font-size:13px;
+  }
+  details.rules summary{cursor:pointer;color:var(--gold);font-weight:700;}
+  .rules-grid{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:4px 12px;
+    color:var(--chalk-dim);
+  }
+  .rules-grid div:nth-child(odd){color:var(--chalk);}
+
+  /* Leaderboard */
+  .board{display:flex;flex-direction:column;gap:10px;}
+  .row{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:8px;
+    padding:14px 18px;
+    display:grid;
+    grid-template-columns:36px 1fr auto;
+    align-items:center;
+    gap:14px;
+  }
+  .row.lead{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;}
+  .rank{
+    font-size:20px;
+    font-weight:800;
+    color:var(--chalk-dim);
+    text-align:center;
+  }
+  .row.lead .rank{color:var(--gold);}
+  .player-name{font-size:17px;font-weight:700;margin-bottom:6px;}
+  .teams{display:flex;flex-wrap:wrap;gap:6px;}
+  .team-chip{
+    font-size:11px;
+    background:var(--field);
+    border:1px solid var(--panel-line);
+    border-radius:4px;
+    padding:3px 7px;
+    color:var(--chalk-dim);
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .team-chip .badge{
+    background:var(--gold-dim);
+    color:#1a1204;
+    border-radius:3px;
+    padding:1px 4px;
+    font-weight:700;
+    font-size:10px;
+  }
+  .score{
+    font-size:26px;
+    font-weight:800;
+    color:var(--gold);
+    text-align:right;
+    min-width:56px;
+  }
+  .score .label{
+    display:block;
+    font-size:10px;
+    color:var(--chalk-dim);
+    font-weight:400;
+    letter-spacing:.5px;
+  }
+
+  /* Setup form */
+  .setup{background:var(--panel);border:1px solid var(--panel-line);border-radius:10px;padding:24px;}
+  .setup h2{margin-top:0;font-size:20px;}
+  .setup p{color:var(--chalk-dim);font-size:13px;line-height:1.5;}
+  .player-block{
+    border-top:1px solid var(--panel-line);
+    padding:14px 0;
+  }
+  .player-block input[type=text]{
+    width:100%;
+    background:var(--field);
+    border:1px solid var(--panel-line);
+    color:var(--chalk);
+    padding:8px 10px;
+    border-radius:6px;
+    font-size:15px;
+    margin-bottom:10px;
+  }
+  .team-selects{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;}
+  select{
+    width:100%;
+    background:var(--field);
+    border:1px solid var(--panel-line);
+    color:var(--chalk);
+    padding:7px 8px;
+    border-radius:6px;
+    font-size:13px;
+  }
+  .setup-actions{margin-top:20px;display:flex;gap:10px;justify-content:flex-end;}
+  .warn{color:#e8a99a;font-size:13px;margin-top:10px;min-height:16px;}
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--chalk-dim);
+  }
+  footer{text-align:center;margin-top:30px;color:var(--panel-line);font-size:11px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>League Standings</h1>
+    <div class="sub">8 owners · 4 teams each</div>
+  </header>
+
+  <details class="rules">
+    <summary>Scoring rules</summary>
+    <div class="rules-grid">
+      <div>Regular season win</div><div>2 pts</div>
+      <div>Regular season tie</div><div>1 pt</div>
+      <div>Regular season loss</div><div>0 pts</div>
+      <div>#1 seed (AFC/NFC)</div><div>5 pts</div>
+      <div>Other playoff berth</div><div>3 pts</div>
+      <div>Wild Card win</div><div>2 pts</div>
+      <div>Divisional win</div><div>5 pts</div>
+      <div>Conference Championship win</div><div>7 pts</div>
+      <div>Super Bowl win</div><div>12 pts</div>
+    </div>
+  </details>
+
+  <div id="status" class="status">Loading live NFL data…</div>
+
+  <div class="toolbar">
+    <button class="btn-ghost" id="refreshBtn" style="display:none;">Refresh</button>
+    <button class="btn-ghost" id="editBtn" style="display:none;">Edit teams</button>
+  </div>
+
+  <div id="content"></div>
+
+  <footer>Records pulled live from ESPN · league setup lives in config.json in this site's repo</footer>
+</div>
+
+<script>
+const TEAMS = [
+  ["ARI","Arizona Cardinals"],["ATL","Atlanta Falcons"],["BAL","Baltimore Ravens"],["BUF","Buffalo Bills"],
+  ["CAR","Carolina Panthers"],["CHI","Chicago Bears"],["CIN","Cincinnati Bengals"],["CLE","Cleveland Browns"],
+  ["DAL","Dallas Cowboys"],["DEN","Denver Broncos"],["DET","Detroit Lions"],["GB","Green Bay Packers"],
+  ["HOU","Houston Texans"],["IND","Indianapolis Colts"],["JAX","Jacksonville Jaguars"],["KC","Kansas City Chiefs"],
+  ["LAC","Los Angeles Chargers"],["LAR","Los Angeles Rams"],["LV","Las Vegas Raiders"],["MIA","Miami Dolphins"],
+  ["MIN","Minnesota Vikings"],["NE","New England Patriots"],["NO","New Orleans Saints"],["NYG","New York Giants"],
+  ["NYJ","New York Jets"],["PHI","Philadelphia Eagles"],["PIT","Pittsburgh Steelers"],["SEA","Seattle Seahawks"],
+  ["SF","San Francisco 49ers"],["TB","Tampa Bay Buccaneers"],["TEN","Tennessee Titans"],["WSH","Washington Commanders"]
+];
+const TEAM_NAME = Object.fromEntries(TEAMS);
+const CONFIG_KEY = "league-config";
+const NUM_PLAYERS = 8;
+const TEAMS_PER_PLAYER = 4;
+
+// Scoring table
+const PTS = {
+  win: 2,
+  tie: 1,
+  loss: 0,
+  topSeed: 5,
+  otherBerth: 3,
+  wildCardWin: 2,
+  divisionalWin: 5,
+  confChampWin: 7,
+  superBowlWin: 12,
+};
+
+let standingsByTeam = {};   // { ABBR: {wins, losses, ties, playoffSeed} }
+let playoffWinsByTeam = {}; // { ABBR: {wildCard:bool, divisional:bool, confChamp:bool, superBowl:bool} }
+let config = null;
+const CONFIG_FILE = "config.json"; // edit this file (in the same folder) to change players/teams
+
+const statusEl = document.getElementById('status');
+const contentEl = document.getElementById('content');
+const refreshBtn = document.getElementById('refreshBtn');
+const editBtn = document.getElementById('editBtn');
+
+refreshBtn.addEventListener('click', loadStandingsAndRender);
+editBtn.addEventListener('click', () => renderSetup(config));
+
+async function fetchJson(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('bad response');
+  return res.json();
+}
+
+async function loadStandings(){
+  const urls = [
+    "https://site.web.api.espn.com/apis/v2/sports/football/nfl/standings?sort=conferencerank:asc,playoffseed:asc",
+    "https://site.api.espn.com/apis/v2/sports/football/nfl/standings"
+  ];
+  let lastErr = null;
+  for(const url of urls){
+    try{
+      const data = await fetchJson(url);
+      const map = {};
+      const groups = data.children || [];
+      let season = null;
+      for(const group of groups){
+        const entries = (group.standings && group.standings.entries) || [];
+        if(group.standings && group.standings.season) season = group.standings.season;
+        for(const entry of entries){
+          const abbr = entry.team && entry.team.abbreviation;
+          if(!abbr) continue;
+          const stats = entry.stats || [];
+          const get = (name) => {
+            const s = stats.find(s => s.name === name || s.type === name);
+            return s ? Number(s.value) || 0 : 0;
+          };
+          map[abbr] = {
+            wins: get('wins'),
+            losses: get('losses'),
+            ties: get('ties'),
+            playoffSeed: get('playoffSeed'),
+          };
+        }
+      }
+      if(Object.keys(map).length > 0){
+        return {map, season};
+      }
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('No standings data');
+}
+
+// seasontype=3 relative weeks: 1=Wild Card, 2=Divisional, 3=Conference Championship, 5=Super Bowl (4=Pro Bowl, skipped)
+async function loadPlayoffWins(season){
+  const rounds = [
+    {week:1, key:'wildCard'},
+    {week:2, key:'divisional'},
+    {week:3, key:'confChamp'},
+    {week:5, key:'superBowl'},
+  ];
+  const result = {};
+  for(const round of rounds){
+    try{
+      const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=3&week=${round.week}&dates=${season}`;
+      const data = await fetchJson(url);
+      const events = data.events || [];
+      for(const ev of events){
+        const comp = ev.competitions && ev.competitions[0];
+        if(!comp) continue;
+        const completed = comp.status && comp.status.type && comp.status.type.completed;
+        if(!completed) continue;
+        const competitors = comp.competitors || [];
+        const winner = competitors.find(c => c.winner === true);
+        if(winner && winner.team && winner.team.abbreviation){
+          const abbr = winner.team.abbreviation;
+          if(!result[abbr]) result[abbr] = {};
+          result[abbr][round.key] = true;
+        }
+      }
+    }catch(e){
+      // round not available yet (season hasn't reached it) — ignore
+    }
+  }
+  return result;
+}
+
+async function loadStandingsAndRender(){
+  statusEl.className = 'status';
+  statusEl.textContent = 'Loading live NFL data…';
+  try{
+    const {map, season} = await loadStandings();
+    standingsByTeam = map;
+    playoffWinsByTeam = season ? await loadPlayoffWins(season) : {};
+    const now = new Date();
+    statusEl.textContent = 'Live as of ' + now.toLocaleString([], {dateStyle:'medium', timeStyle:'short'});
+    refreshBtn.style.display = 'inline-block';
+  }catch(e){
+    statusEl.className = 'status error';
+    statusEl.textContent = "Couldn't reach ESPN's data feed right now. Try refresh.";
+    refreshBtn.style.display = 'inline-block';
+  }
+  if(config){
+    renderLeaderboard(config);
+  }
+}
+
+async function loadConfig(){
+  try{
+    const res = await fetch(CONFIG_FILE + '?_=' + Date.now()); // cache-bust so edits show up
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(!data || !Array.isArray(data.players)) return null;
+    return data;
+  }catch(e){
+    return null;
+  }
+}
+
+// Static hosting can't write files from the browser, so instead of saving
+// automatically, we hand the person a config.json to download and commit.
+function downloadConfig(cfg){
+  const blob = new Blob([JSON.stringify(cfg, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'config.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function teamOptionsHtml(selected){
+  return TEAMS.map(([abbr,name]) =>
+    `<option value="${abbr}" ${abbr===selected?'selected':''}>${name} (${abbr})</option>`
+  ).join('');
+}
+
+function renderSetup(existing){
+  editBtn.style.display = 'none';
+  const players = (existing && existing.players) || Array.from({length:NUM_PLAYERS}, () => ({name:'', teams:['','','','']}));
+
+  contentEl.innerHTML = `
+    <div class="setup">
+      <h2>Set up your league</h2>
+      <p>Enter each of the 8 players and the 4 NFL teams they picked, then hit "Download config.json" below. Replace the <code>config.json</code> file in your GitHub repo with the downloaded one and push — the live site updates for everyone within a minute or two.</p>
+      <div id="playerBlocks"></div>
+      <div class="warn" id="setupWarn"></div>
+      <div class="setup-actions">
+        ${existing ? '<button class="btn-ghost" id="cancelBtn">Cancel</button>' : ''}
+        <button class="btn-gold" id="saveBtn">Download config.json</button>
+      </div>
+    </div>
+  `;
+
+  const blocksEl = document.getElementById('playerBlocks');
+  players.forEach((p, i) => {
+    const block = document.createElement('div');
+    block.className = 'player-block';
+    block.innerHTML = `
+      <input type="text" placeholder="Player ${i+1} name" value="${p.name ? p.name.replace(/"/g,'&quot;') : ''}" data-player-name="${i}">
+      <div class="team-selects">
+        ${Array.from({length:TEAMS_PER_PLAYER}).map((_,j) => `
+          <select data-player-team="${i}-${j}">
+            <option value="">— choose team —</option>
+            ${teamOptionsHtml(p.teams[j])}
+          </select>
+        `).join('')}
+      </div>
+    `;
+    blocksEl.appendChild(block);
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const warnEl = document.getElementById('setupWarn');
+    const newPlayers = [];
+    const usedTeams = new Set();
+    let duplicateTeam = null;
+
+    for(let i=0;i<NUM_PLAYERS;i++){
+      const nameInput = document.querySelector(`[data-player-name="${i}"]`);
+      const name = nameInput.value.trim() || `Player ${i+1}`;
+      const teams = [];
+      for(let j=0;j<TEAMS_PER_PLAYER;j++){
+        const sel = document.querySelector(`[data-player-team="${i}-${j}"]`);
+        const val = sel.value;
+        if(val){
+          if(usedTeams.has(val)) duplicateTeam = val;
+          usedTeams.add(val);
+        }
+        teams.push(val);
+      }
+      newPlayers.push({name, teams});
+    }
+
+    if(duplicateTeam){
+      warnEl.textContent = `${TEAM_NAME[duplicateTeam]} is assigned to more than one player — each team should belong to just one owner.`;
+      return;
+    }
+
+    config = {players: newPlayers};
+    downloadConfig(config);
+    warnEl.style.color = 'var(--gold)';
+    warnEl.textContent = 'Downloaded config.json — replace the file in your GitHub repo and push to publish these changes.';
+  });
+
+  const cancelBtn = document.getElementById('cancelBtn');
+  if(cancelBtn){
+    cancelBtn.addEventListener('click', () => renderLeaderboard(config));
+  }
+}
+
+function teamBreakdown(abbr){
+  const s = standingsByTeam[abbr];
+  const pw = playoffWinsByTeam[abbr] || {};
+  let pts = 0;
+  const tags = [];
+
+  if(s){
+    pts += s.wins * PTS.win + s.ties * PTS.tie;
+    if(s.playoffSeed === 1){
+      pts += PTS.topSeed;
+      tags.push('#1 seed');
+    } else if(s.playoffSeed >= 2 && s.playoffSeed <= 7){
+      pts += PTS.otherBerth;
+      tags.push('Playoffs');
+    }
+  }
+  if(pw.wildCard){ pts += PTS.wildCardWin; tags.push('WC win'); }
+  if(pw.divisional){ pts += PTS.divisionalWin; tags.push('Div win'); }
+  if(pw.confChamp){ pts += PTS.confChampWin; tags.push('Conf champ'); }
+  if(pw.superBowl){ pts += PTS.superBowlWin; tags.push('Super Bowl champ'); }
+
+  return {pts, record: s ? `${s.wins}-${s.losses}${s.ties?'-'+s.ties:''}` : '—', tags};
+}
+
+function pointsFor(teams){
+  let total = 0;
+  teams.forEach(abbr => { total += teamBreakdown(abbr).pts; });
+  return total;
+}
+
+function renderLeaderboard(cfg){
+  editBtn.style.display = 'inline-block';
+  const rows = cfg.players.map(p => ({...p, pts: pointsFor(p.teams.filter(Boolean))}))
+    .sort((a,b) => b.pts - a.pts);
+
+  if(rows.every(r => !r.name && r.teams.every(t => !t))){
+    contentEl.innerHTML = `<div class="empty">No league set up yet.</div>`;
+    return;
+  }
+
+  contentEl.innerHTML = `
+    <div class="board">
+      ${rows.map((r, idx) => `
+        <div class="row ${idx===0 && r.pts>0 ? 'lead':''}">
+          <div class="rank">${idx+1}</div>
+          <div>
+            <div class="player-name">${r.name}</div>
+            <div class="teams">
+              ${r.teams.filter(Boolean).map(abbr => {
+                const b = teamBreakdown(abbr);
+                const tagHtml = b.tags.map(t => `<span class="badge">${t}</span>`).join('');
+                return `<span class="team-chip">${abbr} ${b.record} · ${b.pts}pt${tagHtml}</span>`;
+              }).join('')}
+            </div>
+          </div>
+          <div class="score">${r.pts}<span class="label">PTS</span></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+(async function init(){
+  config = await loadConfig();
+  await loadStandingsAndRender();
+  if(config){
+    renderLeaderboard(config);
+  } else {
+    renderSetup(null);
+  }
+})();
+</script>
+</body>
+</html>
