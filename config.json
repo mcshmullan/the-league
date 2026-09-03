@@ -2,7 +2,7 @@
   "players": [
     { "name": "Bobby", "teams": ["WAS", "DEN", "SEA", "ATL"] },
     { "name": "Oliver", "teams": ["DET", "TB", "ARI", "DAL"] },
-    { "name": "Ralph", "teams": ["", "", "", ""] },
+    { "name": "Ralph", "teams": ["CLE", "MIA", "NO", "NYG"] },
     { "name": "Kian", "teams": ["KC", "LAR", "CAR", "JAX"] },
     { "name": "Mark", "teams": ["GB", "SF", "NE", "TEN"] },
     { "name": "Tiger", "teams": ["BAL", "CIN", "LAC", "NYJ"] },
